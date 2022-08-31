@@ -9,11 +9,10 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.work.ExistingWorkPolicy
-import androidx.work.OneTimeWorkRequest
-import androidx.work.WorkManager
+import androidx.work.*
 import ch.maxant.checker.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
+import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
 
@@ -40,12 +39,20 @@ class MainActivity : AppCompatActivity() {
                 .setAction("Action", null).show()
         }
 
-        WorkHelper.addWork()
+        // https://developer.android.com/topic/libraries/architecture/workmanager
+        // -> https://developer.android.com/topic/libraries/architecture/workmanager/how-to/define-work#schedule_periodic_work
+//        val periodicWork = PeriodicWorkRequest.Builder(
+//            EnsureWorkerIsRunning::class.java,
+//            15, TimeUnit.MINUTES // repeatInterval (the period cycle)
+//            // , 1, TimeUnit.MINUTES // flexInterval
+//        )
+//            .build()
+//        val workManager = WorkManager.getInstance()
+//        workManager.enqueueUniquePeriodicWork("MainActivityPeriodicWorker", ExistingPeriodicWorkPolicy.REPLACE, periodicWork);
     }
 
     override fun onStart() {
         super.onStart()
-
 
         /*
         val sharedPref = getPreferences(Context.MODE_PRIVATE)
@@ -93,7 +100,7 @@ class MainActivity : AppCompatActivity() {
             val work = OneTimeWorkRequest.Builder(
                 MyWorker::class.java
             )
-                .setInitialDelay(5, TimeUnit.SECONDS)
+                .setInitialDelay(5, TimeUnit.MINUTES)
                 .build()
             val workManager = WorkManager.getInstance()
             val op = workManager.enqueueUniqueWork("MainActivityWorker", ExistingWorkPolicy.REPLACE, work)

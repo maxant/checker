@@ -22,6 +22,8 @@ class FirstFragment : Fragment() {
     // onDestroyView.
     private val binding get() = _binding!!
 
+    private var mTextView: TextView? = null
+
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
@@ -30,22 +32,33 @@ class FirstFragment : Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        draw();
+    }
+
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val mTextView = view.findViewById<TextView>(R.id.textview_first_start_value)
+        binding.buttonFirst.setOnClickListener {
+            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
+        }
+
+        mTextView = view.findViewById(R.id.textview_first_start_value)
+        draw()
+    }
+
+    private fun draw() {
         if(Model.workExecutions.isEmpty()) {
-            mTextView.text = "no executions yet"
+            mTextView?.text = "Created at " + Model.createdAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) +
+                                "\r\nno executions yet"
         } else {
-            mTextView.text = "Executed " + Model.workExecutions.size + " times: \r\n" +
+            mTextView?.text = "Created at " + Model.createdAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) +
+                                "\r\nExecuted " + Model.workExecutions.size + " times: \r\n" +
                     Model.workExecutions.stream()
                         .sorted(Comparator.reverseOrder())
                         .map { it.format(DateTimeFormatter.ISO_DATE_TIME) + "\r\n" }
                         .collect(Collectors.joining(","))
-        }
-
-        binding.buttonFirst.setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
     }
 

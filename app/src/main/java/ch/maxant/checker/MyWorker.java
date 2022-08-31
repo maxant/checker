@@ -44,12 +44,12 @@ public class MyWorker extends Worker {
     // Name of Notification Channel for verbose notifications of background work
     private static final String VERBOSE_NOTIFICATION_CHANNEL_NAME = "Checker Notifications";
     private static final String VERBOSE_NOTIFICATION_CHANNEL_DESCRIPTION = "Shows notifications whenever there is a problem";
-    private static final String NOTIFICATION_TITLE = "Checker Problem";
-    private static final String CHANNEL_ID = "CHECKER_NOTIFICATION";
-    private static final int NOTIFICATION_ID = 1;
+    public static final String CHANNEL_ID = "CHECKER_NOTIFICATION";
+    public static final int NOTIFICATION_ID = 1;
 
     public static void makeStatusNotification(String message, Context context) {
         Log.i("MAXANT", "YYY makeStatusNotification: " + message);
+        // needs to be on a thread which called looper.lopper Toast.makeText(context, "started checker", Toast.LENGTH_SHORT).show();
         // Make a channel if necessary
         //if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) { -> logged 28 is more than 26
             // Create the NotificationChannel, but only on API 26+ because
@@ -61,7 +61,7 @@ public class MyWorker extends Worker {
             channel.setDescription(description);
 
             // pause, vibrate, ... repeat
-            /*
+            /* TODO enable!
             channel.enableVibration(true);
             channel.setVibrationPattern(new long[]{200L, 2000L, 200L, 2000L, 200L, 2000L,  // - - - S
                                                    200L,  800L, 200L,  800L, 200L,  800L,  // . . . O
@@ -81,7 +81,7 @@ public class MyWorker extends Worker {
         // Create the notification
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle(NOTIFICATION_TITLE)
+                .setContentTitle("Checker Problem")
                 .setContentText(message)
                 // TODO .addAction(new NotificationCompat.Action(null, "myAction", PendingIntent.))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
