@@ -8,8 +8,10 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import ch.maxant.checker.databinding.FragmentFirstBinding
+import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.stream.Collectors
+import kotlin.reflect.KProperty1
 
 /**
  * A simple [Fragment] subclass as the default destination in the navigation.
@@ -18,8 +20,7 @@ class FirstFragment : Fragment() {
 
     private var _binding: FragmentFirstBinding? = null
 
-    // This property is only valid between onCreateView and
-    // onDestroyView.
+    // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
     private var mTextView: TextView? = null
@@ -44,20 +45,18 @@ class FirstFragment : Fragment() {
             findNavController().navigate(R.id.action_FirstFragment_to_SecondFragment)
         }
 
-        mTextView = view.findViewById(R.id.textview_first_start_value)
+        mTextView = view.findViewById(R.id.textview_logs)
         draw()
     }
 
     private fun draw() {
-        if(Model.workExecutions.isEmpty()) {
-            mTextView?.text = "Created at " + Model.createdAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) +
-                                "\r\nno executions yet"
+        if(Model.queries.isEmpty()) {
+            mTextView?.text = "no queries to show"
         } else {
-            mTextView?.text = "Created at " + Model.createdAt.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME) +
-                                "\r\nExecuted " + Model.workExecutions.size + " times: \r\n" +
-                    Model.workExecutions.stream()
-                        .sorted(Comparator.reverseOrder())
-                        .map { it.format(DateTimeFormatter.ISO_DATE_TIME) + "\r\n" }
+            mTextView?.text = "Queried " + Model.queries.size + " times: \r\n" +
+                    Model.queries.stream()
+                        .sorted { a, b -> b.start.compareTo(a.start) } // reversed coz we start with b
+                        .map { it.toString() + "\r\n" }
                         .collect(Collectors.joining(","))
         }
     }

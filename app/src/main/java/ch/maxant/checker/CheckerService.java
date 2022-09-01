@@ -11,10 +11,12 @@ import androidx.work.ExistingPeriodicWorkPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkManager;
 
-import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
-import static ch.maxant.checker.MyWorker.*;
+import static ch.maxant.checker.MainActivity.WorkHelper.addSiteCheckerWorker;
+import static ch.maxant.checker.Notifications.CHANNEL_ID;
+import static ch.maxant.checker.Notifications.NOTIFICATION_ID;
+import static ch.maxant.checker.SiteCheckerWorker.TAG;
 
 /**
  * https://developer.android.com/guide/components/services
@@ -23,25 +25,20 @@ public class CheckerService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        Log.i("MAXANT", "YYY MainService#onBind " + intent.getAction());
-        return null;
+        return null; // don't bind
     }
 
     @Override
     public void onCreate() {
-
-        Log.i("MAXANT", "YYY Service is created 1");
         super.onCreate();
-        Log.i("MAXANT", "YYY Service is created 2");
+        // something like the following records the current time, each time
+        // the application is instantiated and displayed on the screen
+        // Model.INSTANCE.setCreatedAt(LocalDateTime.now());
 
-        Model.INSTANCE.setCreatedAt(LocalDateTime.now());
-        Log.i("MAXANT", "YYY Service is created 3");
+        addSiteCheckerWorker();
+        Log.i(TAG, "YYY Service is created 4");
 
-        MainActivity.WorkHelper.INSTANCE.addWork();
-        Log.i("MAXANT", "YYY Service is created 4");
-
-        // https://developer.android.com/topic/libraries/architecture/workmanager
-        // -> https://developer.android.com/topic/libraries/architecture/workmanager/how-to/define-work#schedule_periodic_work
+        // https://developer.android.com/topic/libraries/architecture/workmanager/how-to/define-work#schedule_periodic_work
         PeriodicWorkRequest work =
                 new PeriodicWorkRequest.Builder(EnsureWorkerIsRunning.class,
                         15, TimeUnit.MINUTES // repeatInterval (the period cycle)

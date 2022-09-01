@@ -67,7 +67,9 @@ if it says `unauthorized` instead of `device`, then do the following and on the 
 
 ## TODO
 
-- start on phone startup
 - use jvm 11 in AndroideManifest.xml
 - when click notification, open app
 - make app navigate to web, where we can e.g. install new certs
+- check multiple sites
+- add regexps to search for
+- check a new page which tells us when stuff is going to expire

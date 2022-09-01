@@ -1,6 +1,7 @@
 package ch.maxant.checker;
 
 import android.content.Context;
+import android.util.Log;
 import androidx.work.Worker;
 import androidx.work.WorkerParameters;
 import org.jetbrains.annotations.NotNull;
@@ -8,7 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static ch.maxant.checker.MyWorker.makeStatusNotification;
+import static ch.maxant.checker.MainActivity.WorkHelper.addSiteCheckerWorker;
+import static ch.maxant.checker.SiteCheckerWorker.TAG;
 
 public class EnsureWorkerIsRunning extends Worker {
     public EnsureWorkerIsRunning(@NotNull Context appContext, @NotNull WorkerParameters workerParams) {
@@ -19,10 +21,10 @@ public class EnsureWorkerIsRunning extends Worker {
     @Override
     public Result doWork() {
 
-        makeStatusNotification("PERIODIC: " + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME), getApplicationContext());
+        Log.i(TAG, "YYY EnsureWorkerIsRunning periodic worker now running: " + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
-        // this runs every 15m and ensure that work is running, even if the app is in the background
-        MainActivity.WorkHelper.INSTANCE.addWork(); // ensure it runs again. we don't use periodic work, as that can only run every 15m which is crap for testing
+        // this runs every ~15m and ensures that work is running, even if the app is in the background
+        addSiteCheckerWorker(); // ensure it runs again. we don't use periodic work there, as that can only run every 15m which is crap for testing
         return Result.success();
     }
 }

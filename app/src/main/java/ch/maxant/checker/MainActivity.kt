@@ -12,7 +12,6 @@ import androidx.navigation.ui.setupActionBarWithNavController
 import androidx.work.*
 import ch.maxant.checker.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
-import java.time.LocalDateTime
 import java.util.concurrent.TimeUnit
 
 
@@ -88,23 +87,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     object WorkHelper {
-        fun addWork() {
-            // unable to start on install -> so it starts on reboot, and on app start
-            // https://stackoverflow.com/questions/2127044/how-to-start-android-service-on-installation
-            // https://stackoverflow.com/questions/4467600/how-to-launch-a-android-service-when-the-app-launches
-            // val serviceIntent = Intent(applicationContext, MainService::class.java)
-            // startService(serviceIntent)
-
+        @JvmStatic
+        fun addSiteCheckerWorker() {
             // https://developer.android.com/topic/libraries/architecture/workmanager
-            // -> https://developer.android.com/topic/libraries/architecture/workmanager/how-to/define-work#schedule_periodic_work
-            val work = OneTimeWorkRequest.Builder(
-                MyWorker::class.java
-            )
+            val work = OneTimeWorkRequest.Builder(SiteCheckerWorker::class.java)
+                // .setInitialDelay(10, TimeUnit.SECONDS)
                 .setInitialDelay(5, TimeUnit.MINUTES)
                 .build()
             val workManager = WorkManager.getInstance()
-            val op = workManager.enqueueUniqueWork("MainActivityWorker", ExistingWorkPolicy.REPLACE, work)
-            Log.i("MAXANT", "YYY workManager returned op " + op)
+            workManager.enqueueUniqueWork("MainActivityWorker", ExistingWorkPolicy.REPLACE, work)
         }
     }
 }
