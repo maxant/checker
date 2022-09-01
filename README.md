@@ -73,3 +73,5 @@ if it says `unauthorized` instead of `device`, then do the following and on the 
 - check multiple sites
 - add regexps to search for
 - check a new page which tells us when stuff is going to expire
+- make log page refresh when we add stuff to it
+- 
