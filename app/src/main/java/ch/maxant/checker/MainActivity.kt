@@ -1,7 +1,6 @@
 package ch.maxant.checker
 
 import android.os.Bundle
-import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import androidx.appcompat.app.AppCompatActivity
@@ -9,10 +8,8 @@ import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
-import androidx.work.*
 import ch.maxant.checker.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
-import java.util.concurrent.TimeUnit
 
 
 class MainActivity : AppCompatActivity() {
@@ -84,18 +81,5 @@ class MainActivity : AppCompatActivity() {
         val navController = findNavController(R.id.nav_host_fragment_content_main)
         return navController.navigateUp(appBarConfiguration)
                 || super.onSupportNavigateUp()
-    }
-
-    object WorkHelper {
-        @JvmStatic
-        fun addSiteCheckerWorker() {
-            // https://developer.android.com/topic/libraries/architecture/workmanager
-            val work = OneTimeWorkRequest.Builder(SiteCheckerWorker::class.java)
-                // .setInitialDelay(10, TimeUnit.SECONDS)
-                .setInitialDelay(5, TimeUnit.MINUTES)
-                .build()
-            val workManager = WorkManager.getInstance()
-            workManager.enqueueUniqueWork("MainActivityWorker", ExistingWorkPolicy.REPLACE, work)
-        }
     }
 }

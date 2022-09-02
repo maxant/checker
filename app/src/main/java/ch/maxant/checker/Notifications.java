@@ -3,7 +3,9 @@ package ch.maxant.checker;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import androidx.core.app.NotificationCompat;
@@ -54,15 +56,21 @@ public class Notifications {
             }
         }
 
+        PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
+                new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+
         // Create the notification
         Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
                 .setContentTitle("Checker Problem " + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
                 .setContentText(message)
-                // TODO .addAction(new NotificationCompat.Action(null, "myAction", PendingIntent.))
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setVibrate(new long[0])
+
+                .setContentIntent(contentIntent) // on click, open app
+                .setAutoCancel(true) // remove on click after opening app
+
                 .build();
 
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification);

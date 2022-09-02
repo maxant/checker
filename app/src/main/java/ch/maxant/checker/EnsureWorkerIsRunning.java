@@ -9,8 +9,8 @@ import org.jetbrains.annotations.NotNull;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
-import static ch.maxant.checker.MainActivity.WorkHelper.addSiteCheckerWorker;
 import static ch.maxant.checker.SiteCheckerWorker.TAG;
+import static ch.maxant.checker.WorkHelper.enqueueSiteCheckerWorker;
 
 public class EnsureWorkerIsRunning extends Worker {
     public EnsureWorkerIsRunning(@NotNull Context appContext, @NotNull WorkerParameters workerParams) {
@@ -23,8 +23,11 @@ public class EnsureWorkerIsRunning extends Worker {
 
         Log.i(TAG, "YYY EnsureWorkerIsRunning periodic worker now running: " + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME));
 
-        // this runs every ~15m and ensures that work is running, even if the app is in the background
-        addSiteCheckerWorker(); // ensure it runs again. we don't use periodic work there, as that can only run every 15m which is crap for testing
+        // this code here runs every ~15m and ensures that work is running, even if the app is in the background
+
+        // enqueue actual work. we don't use periodic work there, as that can only run every 15m which is crap for testing
+        enqueueSiteCheckerWorker();
+
         return Result.success();
     }
 }

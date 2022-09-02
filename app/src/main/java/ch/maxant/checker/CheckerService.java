@@ -7,16 +7,11 @@ import android.os.IBinder;
 import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
-import androidx.work.ExistingPeriodicWorkPolicy;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
-import java.util.concurrent.TimeUnit;
-
-import static ch.maxant.checker.MainActivity.WorkHelper.addSiteCheckerWorker;
 import static ch.maxant.checker.Notifications.CHANNEL_ID;
 import static ch.maxant.checker.Notifications.NOTIFICATION_ID;
 import static ch.maxant.checker.SiteCheckerWorker.TAG;
+import static ch.maxant.checker.WorkHelper.enqueuePeriodic_EnsureWorkerIsRunning;
 
 /**
  * https://developer.android.com/guide/components/services
@@ -35,19 +30,9 @@ public class CheckerService extends Service {
         // the application is instantiated and displayed on the screen
         // Model.INSTANCE.setCreatedAt(LocalDateTime.now());
 
-        addSiteCheckerWorker();
-        Log.i(TAG, "YYY Service is created 4");
+        Log.d(TAG, "YYY CheckerService is created. enqueuing periodic worker to ensure the site checker runs regularly...");
 
-        // https://developer.android.com/topic/libraries/architecture/workmanager/how-to/define-work#schedule_periodic_work
-        PeriodicWorkRequest work =
-                new PeriodicWorkRequest.Builder(EnsureWorkerIsRunning.class,
-                        15, TimeUnit.MINUTES // repeatInterval (the period cycle)
-                        // , 1, TimeUnit.MINUTES // flexInterval
-                )
-                .build();
-
-        WorkManager workManager = WorkManager.getInstance();
-        workManager.enqueueUniquePeriodicWork("CheckerServiceWorker", ExistingPeriodicWorkPolicy.REPLACE, work);
+        enqueuePeriodic_EnsureWorkerIsRunning();
     }
 
     @Override

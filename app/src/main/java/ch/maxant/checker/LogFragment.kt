@@ -6,17 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
-import androidx.navigation.fragment.findNavController
-import ch.maxant.checker.databinding.FragmentFirstBinding
-import java.util.stream.Collectors
+import ch.maxant.checker.databinding.FragmentLogBinding
 import java.util.stream.Collectors.joining
 
-/**
- * A simple [Fragment] subclass as the default destination in the navigation.
- */
-class FirstFragment : Fragment() {
+class LogFragment : Fragment() {
 
-    private var _binding: FragmentFirstBinding? = null
+    private var _binding: FragmentLogBinding? = null
 
     // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
@@ -44,14 +39,14 @@ class FirstFragment : Fragment() {
             draw()
         }
 
-        override fun getId() = "FirstFragmentListener"
+        override fun getId() = "LogFragmentListener"
     }
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentFirstBinding.inflate(inflater, container, false)
+        _binding = FragmentLogBinding.inflate(inflater, container, false)
         Controller.addListener(modelListener)
         return binding.root
     }
@@ -64,11 +59,11 @@ class FirstFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        binding.buttonFirst.setOnClickListener {
-            findNavController().navigate(R.id.action_FirstFragment_to_LogFragment)
+        binding.buttonClear.setOnClickListener {
+            Controller.clearQueries()
         }
 
-        mTextView = view.findViewById(R.id.textview_logs)
+        mTextView = view.findViewById(R.id.logview)
         draw()
     }
 
@@ -77,7 +72,7 @@ class FirstFragment : Fragment() {
             if(Model.queries().isEmpty()) {
                 mTextView?.text = "no queries to show"
             } else {
-                mTextView?.text = "Queried " + Model.queries().size + " times: \r\n" +
+                mTextView?.text = "Queried ${Model.queries().size} times: \r\n" +
                         Model.queries().stream()
                             .sorted { a, b -> b.predictedStart.compareTo(a.predictedStart) } // reversed coz we start with b
                             .map { it.toString() }

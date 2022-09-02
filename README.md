@@ -68,10 +68,11 @@ if it says `unauthorized` instead of `device`, then do the following and on the 
 ## TODO
 
 - use jvm 11 in AndroideManifest.xml
-- when click notification, open app
 - make app navigate to web, where we can e.g. install new certs
 - check multiple sites
 - add regexps to search for
 - check a new page which tells us when stuff is going to expire
-- make log page refresh when we add stuff to it
-- 
+- persistent log messages
+- remove email button
+- make settings button do something?
+- get rid of second fragment

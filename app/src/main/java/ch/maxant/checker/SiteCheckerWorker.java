@@ -11,7 +11,7 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.URL;
 
-import static ch.maxant.checker.MainActivity.WorkHelper.addSiteCheckerWorker;
+import static ch.maxant.checker.WorkHelper.enqueueSiteCheckerWorker;
 
 public class SiteCheckerWorker extends Worker {
 
@@ -25,7 +25,7 @@ public class SiteCheckerWorker extends Worker {
     @Override
     public Result doWork() {
 
-        Query query = Model.addQuery();
+        Query query = Controller.getLatestWaitingToStartQueryAndMarkAsStarted();
 
         // TODO list of sites
         String urlString = "https://www.maxant.ch";
@@ -41,24 +41,24 @@ public class SiteCheckerWorker extends Worker {
                     while ((inputLine = in.readLine()) != null) {
                         response.append(inputLine);
                     }
-                    Log.d(TAG, "YYY call to site " + urlString + " successful: " + response);
+                    Log.d(TAG, "YYY call to site " + urlString + " successful"); // + response);
                     // TODO parse response according to requirements per site
-                    query.setSuccess("OK");
+                    Controller.updateQuerySuccess(query, "OK");
                 }
             } else {
                 Log.w(TAG, "YYY site " + urlString + " failed with code: " + responseCode);
                 Notifications.notify("FAILED " + responseCode, getApplicationContext());
-                query.setFailed("Code " + responseCode);
+                Controller.updateQueryFailed(query, "Code " + responseCode);
             }
         } catch (Exception e) {
             Log.w(TAG, "YYY site " + urlString + " failed with exception: " + e.getMessage(), e);
             Notifications.notify("FAILED " + e.getMessage(), getApplicationContext());
-            query.setFailed(e.getMessage());
+            Controller.updateQueryFailed(query, e.getMessage());
         }
 
         // ensure it runs again.
         // we don't use periodic work for these individual checks, as that can only run every 15m which is crap for testing
-        addSiteCheckerWorker();
+        enqueueSiteCheckerWorker();
 
         // Map<String, Object> map = new HashMap<>();
         // map.put("asdf", "asdf");
