@@ -12,7 +12,7 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/logview"
+            android:id="@+id/certsview"
             android:layout_height="0dp"
             android:layout_weight="1"
             android:layout_width="match_parent"
@@ -27,17 +27,11 @@
             android:gravity="center_vertical">
 
             <Button
-                android:id="@+id/button_clear"
+                android:id="@+id/button_back"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="Clear" />
-            <Button
-                android:id="@+id/button_certs"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:text="Certificates" />
+                android:text="Back" />
 
         </LinearLayout>
     </LinearLayout>

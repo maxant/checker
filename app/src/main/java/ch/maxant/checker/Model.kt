@@ -5,12 +5,15 @@ import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import ch.maxant.checker.SiteCheckerWorker.TAG
+import java.time.LocalDate
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
 object Model {
     private val queries = Collections.synchronizedList(ArrayList<Query>())
+
+    private var certificateModel: CertificateModel = CertificateModel("not yet initialised")
 
     internal fun addQuery(predictedStart: LocalDateTime): Query {
         val q = Query(predictedStart)
@@ -28,6 +31,22 @@ object Model {
     fun clearQueries() {
         queries.clear()
     }
+
+    internal fun setCertificateModel(certificateModel: CertificateModel) {
+        this.certificateModel = certificateModel
+    }
+
+    @JvmStatic
+    fun getCertificateModel() = certificateModel
+
+}
+
+data class Certificate(val domain: String, val expiry: LocalDate, val validity: String, val warnings: String?)
+
+data class CertificateModel(val lastUpdated: String?, val certificates: List<Certificate>?, val warnings: String?, val errors: String?) {
+    constructor(errors: String) : this(null, null, null, errors)
+    constructor(lastUpdated: String, certificates: List<Certificate>) : this(lastUpdated, certificates, null, null)
+    constructor(lastUpdated: String, certificates: List<Certificate>, warnings: String) : this(lastUpdated, certificates, warnings, null)
 }
 
 data class Query(val predictedStart: LocalDateTime, var start: LocalDateTime? = null, var end: LocalDateTime? = null, var result: String? = null, var state: Boolean? = null) {
@@ -64,6 +83,7 @@ abstract class ModelListener {
     abstract fun onSuccessfulQuery(query: Query)
     abstract fun onFailedQuery(query: Query)
     abstract fun onClearQueries()
+    abstract fun onCertificatesChanged(certificateModel: CertificateModel)
 
     abstract fun getId(): String
 
@@ -94,34 +114,52 @@ object Controller {
     @JvmStatic
     fun addQuery(predictedStart: LocalDateTime): Query {
         val query = Model.addQuery(predictedStart)
-        tryCallingListeners { it.onAddQuery(query)}
+        tryCallingListeners { it.onAddQuery(query) }
         return query
     }
 
     @JvmStatic
     fun updateQuerySuccess(query: Query, result: String) {
         query.setSuccess(result)
-        tryCallingListeners { it.onSuccessfulQuery(query)}
+        tryCallingListeners { it.onSuccessfulQuery(query) }
     }
 
     @JvmStatic
     fun updateQueryFailed(query: Query, result: String) {
         query.setFailed(result)
-        tryCallingListeners { it.onFailedQuery(query)}
+        tryCallingListeners { it.onFailedQuery(query) }
     }
 
     @JvmStatic
     fun clearQueries() {
         Model.clearQueries()
-        tryCallingListeners { it.onClearQueries()}
+        tryCallingListeners { it.onClearQueries() }
     }
 
     @JvmStatic
     fun getLatestWaitingToStartQueryAndMarkAsStarted(): Query {
         val lastUnstartedQuery = Model.queries().lastOrNull { it.start == null } ?: addQuery(LocalDateTime.now())
         lastUnstartedQuery.setActualStart()
-        tryCallingListeners { it.onStartQuery(lastUnstartedQuery)}
+        tryCallingListeners { it.onStartQuery(lastUnstartedQuery) }
         return lastUnstartedQuery
+    }
+
+    @JvmStatic
+    fun certificatesChanged(lastUpdated: String, certificates: List<Certificate>) {
+        Model.setCertificateModel(CertificateModel(lastUpdated, certificates))
+        tryCallingListeners { it.onCertificatesChanged(Model.getCertificateModel()) }
+    }
+
+    @JvmStatic
+    fun certificatesChanged(lastUpdated: String, certificates: List<Certificate>, warnings: String) {
+        Model.setCertificateModel(CertificateModel(lastUpdated, certificates, warnings))
+        tryCallingListeners { it.onCertificatesChanged(Model.getCertificateModel()) }
+    }
+
+    @JvmStatic
+    fun certificatesChanged(certificatesError: String) {
+        Model.setCertificateModel(CertificateModel(certificatesError))
+        tryCallingListeners { it.onCertificatesChanged(Model.getCertificateModel()) }
     }
 
     private fun tryCallingListeners(f: (ModelListener) -> Unit) {

@@ -7,9 +7,8 @@ import java.util.concurrent.TimeUnit
 
 object WorkHelper {
     @JvmStatic
-    fun enqueueSiteCheckerWorker() {
+    fun enqueueSiteCheckerWorker(delay: Duration) {
         // https://developer.android.com/topic/libraries/architecture/workmanager
-        val delay = Duration.ofSeconds(5*60) // 5 * 60  OR 10 for testing
         val clazz = SiteCheckerWorker::class.java
         val work = OneTimeWorkRequest.Builder(clazz)
             .setInitialDelay(delay)

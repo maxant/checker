@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import ch.maxant.checker.databinding.FragmentLogBinding
 import java.util.stream.Collectors.joining
 
@@ -39,6 +40,10 @@ class LogFragment : Fragment() {
             draw()
         }
 
+        override fun onCertificatesChanged(certificateModel: CertificateModel) {
+            // noop
+        }
+
         override fun getId() = "LogFragmentListener"
     }
 
@@ -61,6 +66,10 @@ class LogFragment : Fragment() {
 
         binding.buttonClear.setOnClickListener {
             Controller.clearQueries()
+        }
+
+        binding.buttonCerts.setOnClickListener {
+            findNavController().navigate(R.id.action_LogFragment_to_CertsFragment)
         }
 
         mTextView = view.findViewById(R.id.logview)

@@ -44,6 +44,10 @@ class FirstFragment : Fragment() {
             draw()
         }
 
+        override fun onCertificatesChanged(certificateModel: CertificateModel) {
+            // noop
+        }
+
         override fun getId() = "FirstFragmentListener"
     }
 
