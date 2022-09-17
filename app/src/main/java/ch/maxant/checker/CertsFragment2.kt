@@ -1,23 +1,28 @@
 package ch.maxant.checker
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
+import android.text.Html
+import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.webkit.WebView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import ch.maxant.checker.databinding.FragmentCertsBinding
+import ch.maxant.checker.databinding.FragmentCerts2Binding
 import java.time.LocalDate
 
-class CertsFragment : Fragment() {
 
-    private var _binding: FragmentCertsBinding? = null
+class CertsFragment2 : Fragment() {
+
+    private var _binding: FragmentCerts2Binding? = null
 
     // This property is only valid between onCreateView and onDestroyView.
     private val binding get() = _binding!!
 
-    private var mTextView: TextView? = null
+    private var mWebView: WebView? = null
 
     private val modelListener = object : ModelListener() {
         override fun onAddQuery(query: Query) {
@@ -51,7 +56,7 @@ class CertsFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentCertsBinding.inflate(inflater, container, false)
+        _binding = FragmentCerts2Binding.inflate(inflater, container, false)
         Controller.addListener(modelListener)
         return binding.root
     }
@@ -65,42 +70,52 @@ class CertsFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonBack.setOnClickListener {
-            findNavController().navigate(R.id.action_CertsFragment_to_LogFragment)
+            findNavController().navigate(R.id.action_CertsFragment2_to_CertsFragment)
         }
-        binding.buttonForward.setOnClickListener {
-            findNavController().navigate(R.id.action_CertsFragment_to_CertsFragment2)
+        binding.buttonGotoAbstratium.setOnClickListener {
+            startActivity(Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://abstratium.dev")))
         }
 
-        mTextView = view.findViewById(R.id.certsview)
+        mWebView = view.findViewById(R.id.certs2view)
         draw(Model.getCertificateModel())
     }
 
+    // https://developer.android.com/develop/ui/views/layout/webapps/webview
     private fun draw(certificateModel: CertificateModel) {
-        var text = "getting ready..."
+        var text = StringBuilder()
         if(certificateModel.errors != null) {
-            text = "Errors fetching certificates: " + Model.getCertificateModel().errors
+            text.append("Errors fetching certificates: " + Model.getCertificateModel().errors)
         } else {
             if(Model.getCertificateModel().certificates != null) {
-                text = ""
                 Model.getCertificateModel().certificates?.forEach { certificate ->
-                    text += "\r\n\r\n" + certificate.domain + " Valid " + certificate.validity
+                    var colour = "#90EE90";
+                    var expiresSoon = "";
                     if(certificate.expiry.isBefore(LocalDate.now().plusDays(20))) {
-                        text += " EXPIRES SOON!!"
+                        expiresSoon = " EXPIRES SOON!!"
+                        colour = "#FFA500";
                     }
-
+                    text.append("<div style='margin: 3px; border: 1px solid black; background-color: " + colour + ";'>")
+                    text.append(certificate.domain + " valid " + certificate.validity + expiresSoon)
                     if(certificate.warnings != null) {
-                        text = " Certificate warnings (" + certificate.domain + "): " + certificate.warnings + "!!\r\n\r\n" + text
+                        text.append("<div style='margin: 3px; background-color: yellow;'>Certificate warnings: " + certificate.warnings + "</div>")
                     }
+                    text.append("</div>")
                 }
             }
-
             if(Model.getCertificateModel().warnings != null) {
-                text = "General warnings: " + Model.getCertificateModel().warnings + "\r\n\r\n" + text
+                text = StringBuilder("<div style='margin: 3px; border: 1px solid black; background-color: red;'>General warnings: "
+                        + Model.getCertificateModel().warnings + "</div>").append(text)
             }
         }
 
-        mTextView?.post { // post, as that is similar to runOnUiThread - and we may be coming in from somewhere dodgy
-            mTextView?.text = text
+        mWebView?.post { // post, as that is similar to runOnUiThread - and we may be coming in from somewhere dodgy
+            // Create an unencoded HTML string
+            // then convert the unencoded HTML string into bytes, encode
+            // it with Base64, and load the data.
+            val unencodedHtml =
+                "<html><body>" + text + "</body></html>";
+            val encodedHtml = Base64.encodeToString(unencodedHtml.toByteArray(), Base64.NO_PADDING)
+            mWebView?.loadData(encodedHtml, "text/html", "base64")
         }
     }
 

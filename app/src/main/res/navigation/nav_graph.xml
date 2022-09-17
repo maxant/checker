@@ -17,6 +17,13 @@
         android:label="@string/certs_fragment_label" tools:layout="@layout/fragment_certs">
 
         <action android:id="@+id/action_CertsFragment_to_LogFragment" app:destination="@id/LogFragment" />
+        <action android:id="@+id/action_CertsFragment_to_CertsFragment2" app:destination="@id/CertsFragment2" />
+    </fragment>
+    <fragment android:id="@+id/CertsFragment2" android:name="ch.maxant.checker.CertsFragment2"
+        android:label="@string/certs_fragment_label" tools:layout="@layout/fragment_certs">
+
+        <action android:id="@+id/action_CertsFragment2_to_CertsFragment" app:destination="@id/CertsFragment" />
+        <action android:id="@+id/action_CertsFragment_to_LogFragment" app:destination="@id/LogFragment" />
     </fragment>
     <fragment android:id="@+id/SecondFragment" android:name="ch.maxant.checker.SecondFragment"
         android:label="@string/second_fragment_label" tools:layout="@layout/fragment_second">

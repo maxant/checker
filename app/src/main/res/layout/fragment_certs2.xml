@@ -8,17 +8,15 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/certsview"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+        <WebView
+            android:id="@+id/certs2view"
             android:layout_width="match_parent"
-            android:padding="6dp"
-            android:textSize="6pt"
-            android:text="hello"/>
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="waiting..."/>
 
         <LinearLayout
             android:layout_height="wrap_content"
@@ -34,11 +32,11 @@
                 android:text="&lt;" />
 
             <Button
-                android:id="@+id/button_forward"
+                android:id="@+id/button_goto_abstratium"
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:text="&gt;" />
+                android:text="abstratium" />
 
         </LinearLayout>
     </LinearLayout>
