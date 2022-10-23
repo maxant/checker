@@ -1,21 +1,23 @@
 package ch.maxant.checker
 
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
-import android.text.Html
 import android.util.Base64
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.JavascriptInterface
 import android.webkit.WebView
+import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import ch.maxant.checker.databinding.FragmentCerts2Binding
 import java.time.LocalDate
 
 
-class CertsFragment2 : Fragment() {
+class Certs2Fragment : Fragment() {
 
     private var _binding: FragmentCerts2Binding? = null
 
@@ -70,14 +72,30 @@ class CertsFragment2 : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         binding.buttonBack.setOnClickListener {
-            findNavController().navigate(R.id.action_CertsFragment2_to_CertsFragment)
+            findNavController().navigate(R.id.action_Certs2Fragment_to_LogFragment)
         }
         binding.buttonGotoAbstratium.setOnClickListener {
             startActivity(Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://abstratium.dev")))
         }
 
         mWebView = view.findViewById(R.id.certs2view)
+        setupJavascript(view.context)
         draw(Model.getCertificateModel())
+    }
+
+    /** Instantiate the interface and set the context  */
+    class WebAppInterface(private val mContext: Context) {
+
+        /** Show a toast from the web page  */
+        @JavascriptInterface
+        fun showToast(toast: String) {
+            Toast.makeText(mContext, toast, Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun setupJavascript(context: Context) {
+        mWebView?.settings?.javaScriptEnabled = true
+        mWebView?.addJavascriptInterface(WebAppInterface(context), "Android")
     }
 
     // https://developer.android.com/develop/ui/views/layout/webapps/webview
@@ -94,7 +112,10 @@ class CertsFragment2 : Fragment() {
                         expiresSoon = " EXPIRES SOON!!"
                         colour = "#FFA500";
                     }
-                    text.append("<div style='margin: 3px; border: 1px solid black; background-color: " + colour + ";'>")
+                    text.append("<div " +
+                            "style='margin: 3px; border: 1px solid black; background-color: " + colour + ";' " +
+                            "onclick='clicked(\"" + certificate.domain + "\")' " +
+                            ">")
                     text.append(certificate.domain + " valid " + certificate.validity + expiresSoon)
                     if(certificate.warnings != null) {
                         text.append("<div style='margin: 3px; background-color: yellow;'>Certificate warnings: " + certificate.warnings + "</div>")
@@ -106,6 +127,13 @@ class CertsFragment2 : Fragment() {
                 text = StringBuilder("<div style='margin: 3px; border: 1px solid black; background-color: red;'>General warnings: "
                         + Model.getCertificateModel().warnings + "</div>").append(text)
             }
+            text.append("""
+                    <script type="text/javascript">
+                        function clicked(host) {
+                            Android.showToast(host);
+                        }
+                    </script>
+                """)
         }
 
         mWebView?.post { // post, as that is similar to runOnUiThread - and we may be coming in from somewhere dodgy

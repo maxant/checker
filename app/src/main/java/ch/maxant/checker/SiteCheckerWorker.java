@@ -64,6 +64,7 @@ public class SiteCheckerWorker extends Worker {
         // ensure it runs again.
         // we don't use periodic work for these individual checks, as that can only run every 15m which is crap for testing
         enqueueSiteCheckerWorker(Duration.ofMinutes(5));
+        // for tests: enqueueSiteCheckerWorker(Duration.ofSeconds(20));
 
         // Map<String, Object> map = new HashMap<>();
         // map.put("asdf", "asdf");
@@ -121,8 +122,10 @@ public class SiteCheckerWorker extends Worker {
         //- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
         //Found the following certs:
         //  Certificate Name: abstratium.dev
+        //    Serial Number: 37403cc425c60515247a818381db36464cc
+        //    Key Type: RSA
         //    Domains: abstratium.dev
-        //    Expiry Date: 2022-09-24 18:14:09+00:00 (VALID: 11 days)
+        //    Expiry Date: 2022-12-16 19:22:47+00:00 (VALID: 54 days)
         //    Certificate Path: /etc/letsencrypt/live/abstratium.dev/fullchain.pem
         //    Private Key Path: /etc/letsencrypt/live/abstratium.dev/privkey.pem
         //  ...
@@ -131,11 +134,13 @@ public class SiteCheckerWorker extends Worker {
         StringTokenizer st = new StringTokenizer(stdout.replace('\r', '\n'), "\n");
         while(st.hasMoreTokens()) {
             String line = st.nextToken().trim();
-            if(line.startsWith("-") || line.startsWith("Found the following certs")) {
+            if(line.startsWith("-") || line.startsWith("Found the following certs")) { // skip
             } else if(line.startsWith("Certificate Name")) {
-                String domain = st.nextToken().trim();
+                st.nextToken(); // Serial Number:
+                st.nextToken(); // Key Type:
+                String domain = st.nextToken().trim(); // Domains:
                 domain = domain.substring("Domains: ".length()).trim();
-                String expiryLine = st.nextToken().trim();
+                String expiryLine = st.nextToken().trim(); // Expiry Date:
                 String[] expiries = expiryLine.split("\\(");
                 String expiry = expiries[0].trim();
                 expiry = expiry.substring("Expiry Date: ".length()).trim();
@@ -144,7 +149,7 @@ public class SiteCheckerWorker extends Worker {
                 validity = validity.replace('(', ' ');
                 validity = validity.replace(')', ' ').trim();
                 validity = validity.substring("VALID: ".length());
-                String paths = st.nextToken() + "::" + st.nextToken();
+                String paths = st.nextToken() + "::" + st.nextToken(); // Certificate Path: & Private Key Path:
                 certificates.add(new Certificate(domain, LocalDate.parse(expiry), validity, paths.contains("00") ? paths : null));
             } else {
                 certificates.add(new Certificate("unknown", LocalDate.parse("1970-01-01"), "unknown", "unexpected line " + line));

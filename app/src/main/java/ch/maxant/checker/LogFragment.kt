@@ -8,6 +8,7 @@ import android.widget.TextView
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
 import ch.maxant.checker.databinding.FragmentLogBinding
+import java.time.Duration
 import java.util.stream.Collectors.joining
 
 class LogFragment : Fragment() {
@@ -69,7 +70,7 @@ class LogFragment : Fragment() {
         }
 
         binding.buttonCerts.setOnClickListener {
-            findNavController().navigate(R.id.action_LogFragment_to_CertsFragment)
+            findNavController().navigate(R.id.action_LogFragment_to_Certs2Fragment)
         }
 
         mTextView = view.findViewById(R.id.logview)
@@ -79,7 +80,8 @@ class LogFragment : Fragment() {
     private fun draw() {
         mTextView?.post { // post, as that is similar to runOnUiThread - and we may be coming in from somewhere dodgy
             if(Model.queries().isEmpty()) {
-                mTextView?.text = "no queries to show"
+                WorkHelper.enqueueSiteCheckerWorker(Duration.ofSeconds(0))
+                mTextView?.text = "I just enqueued a query..."
             } else {
                 mTextView?.text = "Queried ${Model.queries().size} times: \r\n" +
                         Model.queries().stream()

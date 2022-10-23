@@ -68,7 +68,7 @@ class CertsFragment : Fragment() {
             findNavController().navigate(R.id.action_CertsFragment_to_LogFragment)
         }
         binding.buttonForward.setOnClickListener {
-            findNavController().navigate(R.id.action_CertsFragment_to_CertsFragment2)
+            findNavController().navigate(R.id.action_CertsFragment_to_Certs2Fragment)
         }
 
         mTextView = view.findViewById(R.id.certsview)

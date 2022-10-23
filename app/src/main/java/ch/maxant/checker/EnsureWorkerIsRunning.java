@@ -27,7 +27,7 @@ public class EnsureWorkerIsRunning extends Worker {
         // this code here runs every ~15m and ensures that work is running, even if the app is in the background
 
         // enqueue actual work. we don't use periodic work there, as that can only run every 15m which is crap for testing
-        enqueueSiteCheckerWorker(Duration.ofSeconds(5)); // start pretty much immediately
+        enqueueSiteCheckerWorker(Duration.ofSeconds(1)); // start pretty much immediately
 
         return Result.success();
     }

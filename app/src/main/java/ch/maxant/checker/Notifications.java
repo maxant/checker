@@ -13,6 +13,7 @@ import androidx.core.app.NotificationManagerCompat;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static ch.maxant.checker.SiteCheckerWorker.TAG;
 
@@ -24,7 +25,10 @@ public class Notifications {
     public static final int NOTIFICATION_ID = 1;
 
     public static void notify(String message, Context context) {
-        // needs to be on a thread which called looper.lopper: Toast.makeText(context, "started checker", Toast.LENGTH_SHORT).show();
+        // if you want to use:
+        //      Toast.makeText(context, "started checker", Toast.LENGTH_SHORT).show();
+        // it `needs to be on a thread which called looper.lopper`
+        // see runOnUiThread or view.post
 
         Log.i(TAG, "YYY makeStatusNotification: " + message);
 
@@ -56,24 +60,37 @@ public class Notifications {
             }
         }
 
-        PendingIntent contentIntent = PendingIntent.getActivity(context, 0,
-                new Intent(context, MainActivity.class), PendingIntent.FLAG_UPDATE_CURRENT);
+        Intent intent = new Intent(context, MainActivity.class);
+        PendingIntent contentIntent = PendingIntent.getActivity(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         // Create the notification
-        Notification notification = new NotificationCompat.Builder(context, CHANNEL_ID)
+        String title = "Checker Problem " + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_foreground)
-                .setContentTitle("Checker Problem " + LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME))
+                .setContentTitle(title)
                 .setContentText(message)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setCategory(NotificationCompat.CATEGORY_ALARM)
                 .setVibrate(new long[0])
 
                 .setContentIntent(contentIntent) // on click, open app
-                .setAutoCancel(true) // remove on click after opening app
+                .setAutoCancel(true);// remove on click after opening app
 
-                .build();
+        Notification notification = builder.build();
 
         NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, notification);
+
+        AtomicBoolean alreadyUpdated = new AtomicBoolean(false);
+        Model.setLastNotificationOKUpdater(() -> {
+            if(!alreadyUpdated.get()) {
+                alreadyUpdated.set(true);
+                builder.setContentTitle("\u2714 - " + title);
+                builder.setContentText("OK now. was: " + message);
+                Notification updatedNotification = builder.build();
+                NotificationManagerCompat.from(context).notify(NOTIFICATION_ID, updatedNotification);
+            }
+            return null;
+        });
     }
 
 }

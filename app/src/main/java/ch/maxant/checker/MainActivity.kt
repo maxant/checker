@@ -3,13 +3,16 @@ package ch.maxant.checker
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.findNavController
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.navigateUp
 import androidx.navigation.ui.setupActionBarWithNavController
+import ch.maxant.checker.WorkHelper.enqueueSiteCheckerWorker
 import ch.maxant.checker.databinding.ActivityMainBinding
 import com.google.android.material.snackbar.Snackbar
+import java.time.Duration
 
 
 class MainActivity : AppCompatActivity() {
@@ -72,7 +75,15 @@ class MainActivity : AppCompatActivity() {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_refresh -> {
+                enqueueSiteCheckerWorker(Duration.ofSeconds(0))
+                Model.lastNotificationOKUpdater = {} // the user has clearly clicked the refresh button, they are in the app, they don't need a check mark, on the notification
+                return true
+            }
+            R.id.action_settings -> {
+                Toast.makeText(applicationContext, "todo", Toast.LENGTH_SHORT).show()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }

@@ -13,6 +13,9 @@ import kotlin.collections.HashSet
 object Model {
     private val queries = Collections.synchronizedList(ArrayList<Query>())
 
+    @kotlin.jvm.JvmStatic
+    var lastNotificationOKUpdater: () -> Unit = {}
+
     private var certificateModel: CertificateModel = CertificateModel("not yet initialised")
 
     internal fun addQuery(predictedStart: LocalDateTime): Query {
@@ -32,12 +35,27 @@ object Model {
         queries.clear()
     }
 
+    fun removeOldStartsInFuture() {
+        queries.removeIf { it.startsInFuture() } // remove all of them, because this method is called before a new one is added
+    }
+
     internal fun setCertificateModel(certificateModel: CertificateModel) {
         this.certificateModel = certificateModel
     }
 
     @JvmStatic
     fun getCertificateModel() = certificateModel
+
+    fun setSuccess(query: Query, result: String) {
+        query.setSuccess(result)
+        lastNotificationOKUpdater.invoke()
+        removeOldStartsInFuture()
+    }
+
+    fun setFailed(query: Query, result: String) {
+        query.setFailed(result)
+        removeOldStartsInFuture()
+    }
 
 }
 
@@ -66,15 +84,19 @@ data class Query(val predictedStart: LocalDateTime, var start: LocalDateTime? = 
     }
 
     override fun toString(): String {
-        return if(start == null) {
+        return if(startsInFuture()) {
             predictedStart.format(DateTimeFormatter.ISO_DATE_TIME).substring(0, 19) + ": <- will start then..."
         } else {
             start?.format(DateTimeFormatter.ISO_DATE_TIME)?.substring(0, 19) + ": " +
-                    if(null == state) "Pending..." else
+                    if(isPending()) "Pending..." else
                         (   if(true == state) "Success in " + Duration.between(start, end).toMillis() + "ms"
                         else "*** FAILED *** $result")
         }
     }
+
+    fun startsInFuture(): Boolean = start == null
+
+    fun isPending(): Boolean = null == state
 }
 
 abstract class ModelListener {
@@ -120,13 +142,13 @@ object Controller {
 
     @JvmStatic
     fun updateQuerySuccess(query: Query, result: String) {
-        query.setSuccess(result)
+        Model.setSuccess(query, result)
         tryCallingListeners { it.onSuccessfulQuery(query) }
     }
 
     @JvmStatic
     fun updateQueryFailed(query: Query, result: String) {
-        query.setFailed(result)
+        Model.setFailed(query, result)
         tryCallingListeners { it.onFailedQuery(query) }
     }
 
@@ -138,7 +160,7 @@ object Controller {
 
     @JvmStatic
     fun getLatestWaitingToStartQueryAndMarkAsStarted(): Query {
-        val lastUnstartedQuery = Model.queries().lastOrNull { it.start == null } ?: addQuery(LocalDateTime.now())
+        val lastUnstartedQuery = Model.queries().lastOrNull { it.startsInFuture() } ?: addQuery(LocalDateTime.now())
         lastUnstartedQuery.setActualStart()
         tryCallingListeners { it.onStartQuery(lastUnstartedQuery) }
         return lastUnstartedQuery

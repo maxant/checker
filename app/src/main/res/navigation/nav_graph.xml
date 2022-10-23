@@ -11,19 +11,19 @@
     <fragment android:id="@+id/LogFragment" android:name="ch.maxant.checker.LogFragment"
         android:label="@string/log_fragment_label" tools:layout="@layout/fragment_log">
 
-        <action android:id="@+id/action_LogFragment_to_CertsFragment" app:destination="@id/CertsFragment" />
+        <action android:id="@+id/action_LogFragment_to_Certs2Fragment" app:destination="@id/Certs2Fragment" />
+    </fragment>
+    <fragment android:id="@+id/Certs2Fragment" android:name="ch.maxant.checker.Certs2Fragment"
+        android:label="@string/certs2_fragment_label" tools:layout="@layout/fragment_certs2">
+
+        <action android:id="@+id/action_Certs2Fragment_to_CertsFragment" app:destination="@id/CertsFragment" />
+        <action android:id="@+id/action_Certs2Fragment_to_LogFragment" app:destination="@id/LogFragment" />
     </fragment>
     <fragment android:id="@+id/CertsFragment" android:name="ch.maxant.checker.CertsFragment"
         android:label="@string/certs_fragment_label" tools:layout="@layout/fragment_certs">
 
         <action android:id="@+id/action_CertsFragment_to_LogFragment" app:destination="@id/LogFragment" />
-        <action android:id="@+id/action_CertsFragment_to_CertsFragment2" app:destination="@id/CertsFragment2" />
-    </fragment>
-    <fragment android:id="@+id/CertsFragment2" android:name="ch.maxant.checker.CertsFragment2"
-        android:label="@string/certs_fragment_label" tools:layout="@layout/fragment_certs">
-
-        <action android:id="@+id/action_CertsFragment2_to_CertsFragment" app:destination="@id/CertsFragment" />
-        <action android:id="@+id/action_CertsFragment_to_LogFragment" app:destination="@id/LogFragment" />
+        <action android:id="@+id/action_CertsFragment_to_Certs2Fragment" app:destination="@id/Certs2Fragment" />
     </fragment>
     <fragment android:id="@+id/SecondFragment" android:name="ch.maxant.checker.SecondFragment"
         android:label="@string/second_fragment_label" tools:layout="@layout/fragment_second">
