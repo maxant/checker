@@ -1,12 +1,26 @@
 # checks sites using a background thread
 
+## Tools
+
+if not opening say this project, and starting a new one for the first time in intellij:
+https://www.jetbrains.com/help/idea/create-your-first-android-application.html#fae27f2e
+
+otherwise:
+
+- IntelliJ > Settings > Languages & Frameworks > Android SDK > Location ... edit
+- then install it to /home/ant/Android/Sdk and just keep clicking next
+
+
+    sudo apt install google-android-platform-tools-installer
+
+
 ## connecting device
 
 - https://android.stackexchange.com/a/144967/378169
 - https://stackoverflow.com/questions/31638582/android-adb-devices-unauthorized
-- connect the device using usb
+- connect the device using usb (7 times on aboutPhone>buildNumber), then enable debugging in developer>settings
   - then settings > system > developer
-  - CHANGE connection to allow file transfer!
+  - CHANGE connection to allow file transfer! (in normal usb connection dialog)
   - enable usb debugging
 
 it may help to do this:
@@ -19,6 +33,7 @@ it may help to do this:
 outputs other stuff too:
 
     Bus 002 Device 014: ID 12d1:107e Huawei Technologies Co., Ltd. P10 smartphone
+    Bus 001 Device 072: ID 22b8:2e76 Motorola PCS moto g54 5G
 
 then:
 
@@ -26,13 +41,13 @@ then:
 
 should contain this, where vendor and product ids come from above:
 
-    SUBSYSTEM=="usb", ATTR{idVendor}=="12d1", ATTR{idProduct}=="107e", MODE="0666", GROUP="plugdev", SYMLINK+="android%n"
+    SUBSYSTEM=="usb", ATTR{idVendor}=="22b8", ATTR{idProduct}=="2e76", MODE="0666", GROUP="plugdev", SYMLINK+="android%n"
 
     vi ~/.android/adb_usb.ini
 
 should contain the following, where the code is the vendor code from `lsusb`:
 
-    0x12d1
+    0x22b8
 
     systemctl restart udev
     systemctl status udev
@@ -59,19 +74,22 @@ enable usb debugging in phone's dev settings
 should output:
 
     List of devices attached
-    0WEDS19458102153	device
+    ZY22HMJ2J6    device
 
 if it says `unauthorized` instead of `device`, then do the following and on the phone, enable debugging. check the box to always allow it for this laptop.
 
     adb shell
 
+## Deployment
+
+Use IntelliJ, select the phone, and `app` and then click run. 
+That should install the latest version of the app on the phone.
+
 ## TODO
 
 - use jvm 11 in AndroideManifest.xml
-- make app navigate to web, where we can e.g. install new certs
-- check multiple sites
+- check multiple sites, rather than just hard coded one
 - add regexps to search for
-- check a new page which tells us when stuff is going to expire
 - persistent log messages
 - remove email button
 - make settings button do something?
